@@ -31,6 +31,9 @@
                     </form>
 
                     <form action="{{ route('favorites.toggle', $product) }}" method="POST" class="action-form">
+
+
+
                         @csrf
                         <button type="submit" title="Добавить в избранное" class="btn-icon btn-favorite">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor"
