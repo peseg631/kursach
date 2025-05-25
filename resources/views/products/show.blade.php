@@ -1,120 +1,134 @@
 @extends('layouts.app')
 
+@push('styles')
+    @vite('resources/css/products/show.css')
+@endpush
+
 @section('content')
-    <h1>{{ $product->name }}</h1>
+    <div class="product-container">
+        <h1 class="product-title">{{ $product->name }}</h1>
 
-    @if($product->image)
-        <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" style="max-width: 400px; height: auto; margin-bottom: 20px;">
-    @endif
-
-    <p><strong>Цена:</strong> {{ number_format($product->price, 2) }} ₽</p>
-
-    @if($product->description)
-        <p><strong>Описание:</strong></p>
-        <p>{{ $product->description }}</p>
-    @endif
-
-    <div style="margin-top: 20px;">
-        @auth
-            <form action="{{ route('favorites.toggle', $product) }}" method="POST" style="display:inline;">
-                @csrf
-                <button type="submit">
-                    @php
-                        $isFavorite = auth()->user()->favorites()->where('product_id', $product->id)->exists();
-                    @endphp
-
-                    @if($isFavorite)
-                        Убрать из избранного
-                    @else
-                        В избранное
-                    @endif
-
-                </button>
-            </form>
-
-            <form action="{{ route('cart.add', $product) }}" method="POST" style="display:inline;">
-                @csrf
-                <button type="submit">Добавить в корзину</button>
-            </form>
-        @else
-            <a href="{{ route('login') }}">Войдите</a>, чтобы добавить в избранное и корзину
-        @endauth
-    </div>
-
-    <a href="{{ route('products.index') }}" style="display: inline-block; margin-top: 20px;">← Вернуться к каталогу</a>
-
-    <h3>Отзывы</h3>
-
-    @auth
-        @if($errors->has('limit'))
-            <div style="color: red; margin-bottom: 10px;">
-                {{ $errors->first('limit') }}
-            </div>
+        @if($product->image)
+            <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="product-image">
         @endif
 
-        <form method="POST" action="{{ route('reviews.store', $product) }}">
-            @csrf
-            <div>
-                <label for="rating">Оценка:</label>
-                <select name="rating" id="rating" required>
-                    @for ($i = 1; $i <= 5; $i++)
-                        <option value="{{ $i }}">{{ $i }}</option>
-                    @endfor
-                </select>
-            </div>
+        <p class="product-price">{{ number_format($product->price, 2) }} ₽</p>
 
-            <div>
-                <label for="text">Отзыв:</label>
-                <textarea name="text" id="text" rows="4" required>{{ old('text') }}</textarea>
-                @error('text')
-                <div style="color: red;">{{ $message }}</div>
-                @enderror
-            </div>
+        @if($product->description)
+            <section class="product-description">
+                <h2>Описание</h2>
+                <p>{{ $product->description }}</p>
+            </section>
+        @endif
 
-            <button type="submit">Оставить отзыв</button>
-        </form>
-    @else
-        <p>Чтобы оставить отзыв, пожалуйста, <a href="{{ route('login') }}">войдите в систему</a>.</p>
-    @endauth
-
-    <hr>
-
-    @forelse ($product->reviews as $review)
-        <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
-            <strong>{{ $review->user->name }}</strong> — Оценка: {{ $review->rating }}/5<br>
-            <p>{{ $review->text }}</p>
-
+        <div class="product-actions">
             @auth
-                <form action="{{ route('reviews.like.toggle', $review) }}" method="POST" style="display:inline;">
+                <form action="{{ route('favorites.toggle', $product) }}" method="POST" class="action-form">
                     @csrf
-                    <button type="submit" style="background:none; border:none; cursor:pointer; color: {{ $review->likedByUser(auth()->id()) ? 'blue' : 'gray' }};">
-                        👍 {{ $review->likes()->count() }}
+                    <button type="submit" class="btn btn-favorite">
+                        @php
+                            $isFavorite = auth()->user()->favorites()->where('product_id', $product->id)->exists();
+                        @endphp
+
+                        @if($isFavorite)
+                            Убрать из избранного
+                        @else
+                            В избранное
+                        @endif
                     </button>
                 </form>
+
+                <form action="{{ route('cart.add', $product) }}" method="POST" class="action-form">
+                    @csrf
+                    <button type="submit" class="btn btn-cart">Добавить в корзину</button>
+                </form>
             @else
-                <p style="font-size: 0.9em; color: #555;">Войдите, чтобы поставить лайк</p>
+                <p class="login-prompt">
+                    <a href="{{ route('login') }}">Войдите</a>, чтобы добавить в избранное и корзину
+                </p>
             @endauth
+        </div>
+
+        <a href="{{ route('products.index') }}" class="back-link">← Вернуться к каталогу</a>
+
+        <section class="reviews-section">
+            <h2>Отзывы</h2>
 
             @auth
-                @if (auth()->id() === $review->user_id)
-                    <a href="{{ route('reviews.edit', $review) }}">Редактировать</a>
-
-                    <form method="POST" action="{{ route('reviews.destroy', $review) }}" style="display:inline;">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" onclick="return confirm('Удалить отзыв?')">Удалить</button>
-                    </form>
+                @if($errors->has('limit'))
+                    <div class="error-message">
+                        {{ $errors->first('limit') }}
+                    </div>
                 @endif
+
+                <form method="POST" action="{{ route('reviews.store', $product) }}" class="review-form">
+                    @csrf
+                    <div class="form-group">
+                        <label for="rating">Оценка:</label>
+                        <select name="rating" id="rating" required>
+                            @for ($i = 1; $i <= 5; $i++)
+                                <option value="{{ $i }}">{{ $i }}</option>
+                            @endfor
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="text">Отзыв:</label>
+                        <textarea name="text" id="text" rows="4" required>{{ old('text') }}</textarea>
+                        @error('text')
+                        <div class="error-message">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <button type="submit" class="btn btn-submit-review">Оставить отзыв</button>
+                </form>
+            @else
+                <p>Чтобы оставить отзыв, пожалуйста, <a href="{{ route('login') }}">войдите в систему</a>.</p>
             @endauth
-        </div>
-    @empty
-        <p>Пока нет отзывов.</p>
-    @endforelse
 
-    @if(session('success'))
-        <div style="color: green;">
-            {{ session('success') }}
-        </div>
-    @endif
+            <hr>
 
+            @forelse ($product->reviews as $review)
+                <article class="review-card">
+                    <header>
+                        <strong>{{ $review->user->name }}</strong> — Оценка: {{ $review->rating }}/5
+                    </header>
+                    <p>{{ $review->text }}</p>
+
+                    <div class="review-actions">
+                        @auth
+                            <form action="{{ route('reviews.like.toggle', $review) }}" method="POST" class="inline-form">
+                                @csrf
+                                <button type="submit" class="btn-like" aria-label="Лайк">
+                                    👍 <span class="like-count">{{ $review->likes()->count() }}</span>
+                                </button>
+                            </form>
+                        @else
+                            <p class="login-to-like">Войдите, чтобы поставить лайк</p>
+                        @endauth
+
+                        @auth
+                            @if (auth()->id() === $review->user_id)
+                                <a href="{{ route('reviews.edit', $review) }}" class="btn-edit-review">Редактировать</a>
+
+                                <form method="POST" action="{{ route('reviews.destroy', $review) }}" class="inline-form">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" onclick="return confirm('Удалить отзыв?')" class="btn-delete-review">Удалить</button>
+                                </form>
+                            @endif
+                        @endauth
+                    </div>
+                </article>
+            @empty
+                <p>Пока нет отзывов.</p>
+            @endforelse
+        </section>
+
+        @if(session('success'))
+            <div class="success-message">
+                {{ session('success') }}
+            </div>
+        @endif
+    </div>
 @endsection

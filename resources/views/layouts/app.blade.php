@@ -10,10 +10,13 @@
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        <link rel="stylesheet" href="">
 
-        <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/css/admin/products/index.css', 'resources/css/admin/products/form.css', 'resources/css/admin/categories/index.css', 'resources/css/admin/categories/form.css', 'resources/css/admin/dashboard.css', 'resources/css/profile/show.css',
-    'resources/css/profile/edit.css', 'resources/css/products/index.css', 'resources/js/app.js'])
+        <!-- CSS/Scripts -->
+        <!-- Общие стили -->
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+        @stack('styles')
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-gray-100">
