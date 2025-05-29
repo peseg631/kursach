@@ -33,6 +33,7 @@
 
             <!-- Page Content -->
             <main>
+                @yield('welcome')
                 @yield('content')
             </main>
         </div>
