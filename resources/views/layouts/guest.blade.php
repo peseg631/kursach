@@ -14,11 +14,11 @@
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans text-gray-900 antialiased">
+    <body class="font-sans text-gray-900 antialiased bg-gray-100">
         <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
-            <div>
+            <div class="bg-[#365B6A] rounded-full p-2">
                 <a href="/">
-                    <img src="{{ asset('images/my-logo.png') }}" alt="Логотип" class="w-20 h-20" />
+                    <img src="{{ asset('images/Logo.svg') }}" alt="Логотип" class="w-20 h-20" />
                 </a>
 
             </div>

@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="admin-form-container">
-        <h1>Редактировать товар</h1>
+    <div class="max-w-4xl mx-auto my-8 px-10 py-8 bg-white shadow-md rounded-xl font-sans text-gray-800">
+        <h1 class="text-2xl font-bold mb-6 text-gray-800">Редактировать товар</h1>
 
         @if ($errors->any())
-            <div class="error-messages">
-                <strong>Пожалуйста, исправьте ошибки:</strong>
-                <ul>
+            <div class="mb-5 px-5 py-3 bg-red-100 text-red-800 rounded-lg">
+                <strong class="font-bold">Пожалуйста, исправьте ошибки:</strong>
+                <ul class="mt-1 list-disc list-inside">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach
@@ -15,40 +15,86 @@
             </div>
         @endif
 
-        <form action="{{ route('admin.products.update', $product) }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('admin.products.update', $product) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
             @csrf
             @method('PUT')
 
-            <label for="name">Название товара<span class="required">*</span></label>
-            <input type="text" name="name" id="name" value="{{ old('name', $product->name) }}" required />
+            <div>
+                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">
+                    Название товара <span class="text-red-500">*</span>
+                </label>
+                <input type="text" name="name" id="name" value="{{ old('name', $product->name) }}"
+                       class="w-full border border-gray-300 rounded-[0.7rem] px-4 py-2 focus:ring-[rgb(54,91,106)] focus:border-[rgb(54,91,106)]"
+                       required />
+            </div>
 
-            <label for="description">Описание</label>
-            <textarea name="description" id="description" rows="4">{{ old('description', $product->description) }}</textarea>
+            <div>
+                <label for="description" class="block text-sm font-medium text-gray-700 mb-1">
+                    Описание
+                </label>
+                <textarea name="description" id="description" rows="4"
+                          class="w-full border border-gray-300 rounded-[0.7rem] px-4 py-2 focus:ring-[rgb(54,91,106)] focus:border-[rgb(54,91,106)]">{{ old('description', $product->description) }}</textarea>
+            </div>
 
-            <label for="price">Цена (₽)<span class="required">*</span></label>
-            <input type="number" name="price" id="price" value="{{ old('price', $product->price) }}" min="0" step="0.01" required />
+            <div>
+                <label for="price" class="block text-sm font-medium text-gray-700 mb-1">
+                    Цена (₽) <span class="text-red-500">*</span>
+                </label>
+                <input type="number" name="price" id="price" value="{{ old('price', $product->price) }}" min="0" step="0.01"
+                       class="w-full border border-gray-300 rounded-[0.7rem] px-4 py-2 focus:ring-[rgb(54,91,106)] focus:border-[rgb(54,91,106)]"
+                       required />
+            </div>
 
-            <label for="category_id">Категория<span class="required">*</span></label>
-            <select name="category_id" id="category_id" required>
-                <option value="">Выберите категорию</option>
-                @foreach ($categories as $category)
-                    <option value="{{ $category->id }}" @selected(old('category_id', $product->category_id) == $category->id)>{{ $category->name }}</option>
-                @endforeach
-            </select>
+            <div>
+                <label for="category_id" class="block text-sm font-medium text-gray-700 mb-1">
+                    Категория <span class="text-red-500">*</span>
+                </label>
+                <select name="category_id" id="category_id"
+                        class="w-full border border-gray-300 rounded-[0.7rem] px-4 py-2 focus:ring-[rgb(54,91,106)] focus:border-[rgb(54,91,106)]"
+                        required>
+                    <option value="">Выберите категорию</option>
+                    @foreach($categories as $category)
+                        <option value="{{ $category->id }}" @selected(old('category_id', $product->category_id) == $category->id)>{{ $category->name }}</option>
+                    @endforeach
+                </select>
+            </div>
 
-            <label for="image">Изображение</label>
-            <input type="file" name="image" id="image" accept="image/*" />
+            <div>
+                <label for="image" class="block text-sm font-medium text-gray-700 mb-1">
+                    Изображение
+                </label>
+                <input type="file" name="image" id="image" accept="image/*"
+                       class="block w-full text-sm text-gray-500
+                              file:mr-4 file:py-2 file:px-4
+                              file:rounded-[0.7rem] file:border-0
+                              file:text-sm file:font-semibold
+                              file:bg-[rgb(54,91,106)] file:text-white
+                              hover:file:bg-[rgb(45,75,88)]" />
+            </div>
 
             @if($product->image)
-                <div class="current-image">
-                    <p>Текущее изображение:</p>
-                    <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}">
+                <div class="mt-4">
+                    <p class="text-sm font-medium text-gray-700 mb-2">Текущее изображение:</p>
+                    <div class="flex items-center gap-4">
+                        <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}"
+                             class="h-24 object-contain border border-gray-200 rounded-lg">
+                        <label class="flex items-center gap-2 text-sm text-gray-600">
+                            <input type="checkbox" name="remove_image" value="1" class="rounded text-[rgb(54,91,106)]">
+                            Удалить изображение
+                        </label>
+                    </div>
                 </div>
             @endif
 
-            <div class="buttons">
-                <a href="{{ route('admin.products.index') }}">Отмена</a>
-                <button type="submit">Сохранить</button>
+            <div class="flex items-center justify-end gap-4 pt-4">
+                <a href="{{ route('admin.products.index') }}"
+                   class="px-5 py-2 border border-gray-300 rounded-lg font-bold text-gray-700 hover:bg-gray-50 transition-colors">
+                    Отмена
+                </a>
+                <button type="submit"
+                        class="px-5 py-2 bg-[rgb(54,91,106)] text-white rounded-lg font-bold no-underline transition-colors hover:bg-[rgb(45,75,88)]">
+                    Сохранить изменения
+                </button>
             </div>
         </form>
     </div>

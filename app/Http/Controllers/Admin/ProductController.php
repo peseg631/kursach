@@ -14,31 +14,34 @@ class ProductController extends Controller
     {
         $query = Product::query();
 
+        // Поиск
         if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where('name', 'like', "%{$search}%");
         }
 
+        // Фильтр по категории
         if ($request->filled('category_id')) {
             $query->where('category_id', $request->input('category_id'));
         }
 
-        $sortField = $request->input('sort_field', 'id');
-        $sortDirection = $request->input('sort_direction', 'asc');
-
-        $allowedSortFields = ['id', 'name', 'price'];
-        if (!in_array($sortField, $allowedSortFields)) {
-            $sortField = 'id';
-        }
-
-        if ($sortField === 'name') {
-            $query->orderByRaw("name COLLATE utf8mb4_unicode_ci {$sortDirection}");
+        // Сортировка
+        if ($request->filled('sort')) {
+            switch ($request->input('sort')) {
+                case 'price_asc':
+                    $query->orderBy('price', 'asc');
+                    break;
+                case 'price_desc':
+                    $query->orderBy('price', 'desc');
+                    break;
+                // Можно добавить другие варианты сортировки
+            }
         } else {
-            $query->orderBy($sortField, $sortDirection);
+            // Сортировка по умолчанию
+            $query->orderBy('id', 'asc');
         }
 
         $products = $query->paginate(10)->withQueryString();
-
         $categories = Category::all();
 
         return view('admin.products.index', compact('products', 'categories'));

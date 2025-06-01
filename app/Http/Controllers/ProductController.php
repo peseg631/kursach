@@ -4,17 +4,43 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\Category;
+use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    // Список товаров для покупателей
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::paginate(12);
-        return view('products.index', compact('products'));
-    }
+        $query = Product::query();
 
-    // Детальная страница товара
+        // Фильтрация и сортировка (ваш текущий код)
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where('name', 'like', "%{$search}%");
+        }
+
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->input('category_id'));
+        }
+
+        if ($request->filled('price_sort')) {
+            $sortDirection = $request->input('price_sort');
+            $query->orderBy('price', $sortDirection);
+        }
+
+        // Получаем featured товар
+        $featuredProduct = Product::where('name', 'LIKE', '%Air Max 97%')->first();
+
+        // Если товара нет - можно создать его или использовать первый
+        if (!$featuredProduct) {
+            $featuredProduct = Product::first();
+        }
+
+        return view('products.index', [
+            'products' => $query->get(), // Изменено с paginate() на get()
+            'categories' => Category::all(),
+            'featuredProduct' => $featuredProduct
+        ]);
+    }
     public function show(Product $product)
     {
         return view('products.show', compact('product'));
@@ -23,6 +49,7 @@ class ProductController extends Controller
     public function byCategory(Category $category)
     {
         $products = $category->products()->paginate(12);
-        return view('products.index', compact('products', 'category'));
+        $categories = Category::all();
+        return view('products.index', compact('products', 'category', 'categories'));
     }
 }

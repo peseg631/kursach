@@ -37,6 +37,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
 // Публичные маршруты для покупателей
 Route::get('/products', [PublicProductController::class, 'index'])->name('products.index');
+Route::get('/products/search', [PublicProductController::class, 'search'])->name('products.search');
+
 Route::get('/products/{product}', [PublicProductController::class, 'show'])->name('products.show');
 Route::get('products/category/{category}', [PublicProductController::class, 'byCategory'])->name('products.byCategory');
 
