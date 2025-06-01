@@ -31,12 +31,6 @@
                 Редактировать профиль
             </a>
 
-            @if($user->orders->count() > 0)
-                <a href="{{ route('orders.index') }}"
-                   class="px-5 py-2 bg-gray-200 text-gray-800 rounded-lg font-bold no-underline transition-colors hover:bg-gray-300">
-                    Мои заказы
-                </a>
-            @endif
         </div>
     </div>
 @endsection

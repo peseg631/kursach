@@ -106,6 +106,9 @@ class ProductController extends Controller
     // Удаление товара
     public function destroy(Product $product)
     {
+        // Удаляем связанные отзывы перед удалением продукта
+        $product->reviews()->delete();
+
         $product->delete();
 
         return redirect()->route('admin.products.index')->with('success', 'Товар удалён');

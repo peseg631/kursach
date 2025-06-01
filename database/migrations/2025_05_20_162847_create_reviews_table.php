@@ -16,7 +16,7 @@ return new class extends Migration
             $table->text('text');
             $table->unsignedTinyInteger('rating');
             $table->foreignId('user_id')->constrained();
-            $table->foreignId('product_id')->constrained();
+            $table->foreignId('product_id')->constrained()->onDelete('cascade'); // Изменение здесь
             $table->timestamps();
         });
     }
