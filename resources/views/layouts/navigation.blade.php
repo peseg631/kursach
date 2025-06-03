@@ -15,7 +15,6 @@
                     <a href="{{ $logoLink }}">
                         <img src="{{ asset('images/Logo.svg') }}" alt="Логотип" style="height: 50px; width: auto;">
                     </a>
-
                 </div>
             </div>
 
@@ -42,7 +41,6 @@
                     </span>
                             @endif
                         </a>
-
                         <!-- Иконка избранного -->
                         <a href="{{ route('favorites.index') }}" class="relative text-gray-700 hover:text-gray-900" title="Избранное">
                             <svg width="21" height="20" viewBox="0 0 18 17" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -70,15 +68,18 @@
                             </div>
                         </button>
                     </x-slot>
-
                     <x-slot name="content">
                         <x-dropdown-link :href="route('profile.show')">
-                            {{ __('Профиль') }}
+                            {{ ('Профиль') }}
                         </x-dropdown-link>
 
                         @unless(auth()->user()->role === 'admin')
                             <x-dropdown-link :href="route('orders.index')">
-                                {{ __('История заказов') }}
+                                {{ ('История заказов') }}
+                            </x-dropdown-link>
+
+                            <x-dropdown-link :href="route('contacts.index')">
+                                {{ ('Контакты') }}
                             </x-dropdown-link>
                         @endunless
 
@@ -89,7 +90,7 @@
                             <x-dropdown-link :href="route('logout')"
                                              onclick="event.preventDefault();
                             this.closest('form').submit();">
-                                {{ __('Выйти') }}
+                                {{ ('Выйти') }}
                             </x-dropdown-link>
                         </form>
                     </x-slot>
@@ -114,7 +115,7 @@
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                {{ __('Dashboard') }}
+                {{ ('Dashboard') }}
             </x-responsive-nav-link>
         </div>
 
@@ -127,11 +128,15 @@
 
             <div class="mt-3 space-y-1">
                 <x-responsive-nav-link :href="route('profile.edit')">
-                    {{ __('Профиль') }}
+                    {{ ('Профиль') }}
                 </x-responsive-nav-link>
 
                 <x-responsive-nav-link :href="route('orders.index')">
-                    {{ __('История заказов') }}
+                    {{ ('История заказов') }}
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('contacts.index')">
+                    {{ ('Контакты') }}
                 </x-responsive-nav-link>
 
                 <!-- Authentication -->
@@ -147,31 +152,4 @@
             </div>
         </div>
     </div>
-
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const categoriesToggle = document.getElementById('categories-toggle');
-            const categoriesMenu = document.getElementById('categories-menu');
-
-            if (!categoriesToggle || !categoriesMenu) return;
-
-            // Переключение видимости меню категорий при клике на кнопку
-            categoriesToggle.addEventListener('click', function () {
-                if (categoriesMenu.style.display === 'block') {
-                    categoriesMenu.style.display = 'none';
-                } else {
-                    categoriesMenu.style.display = 'block';
-                }
-            });
-
-            // Закрывать меню при клике вне его
-            document.addEventListener('click', function(event) {
-                const isClickInside = categoriesToggle.contains(event.target) || categoriesMenu.contains(event.target);
-                if (!isClickInside) {
-                    categoriesMenu.style.display = 'none';
-                }
-            });
-        });
-    </script>
 </nav>

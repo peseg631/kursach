@@ -146,5 +146,5 @@
         @empty
             <p class="w-full text-center">Товары не найдены.</p>
         @endforelse
-    </div>
+    </div
 @endsection

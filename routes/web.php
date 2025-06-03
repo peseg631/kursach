@@ -38,9 +38,15 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 // Публичные маршруты для покупателей
 Route::get('/products', [PublicProductController::class, 'index'])->name('products.index');
 Route::get('/products/search', [PublicProductController::class, 'search'])->name('products.search');
-
 Route::get('/products/{product}', [PublicProductController::class, 'show'])->name('products.show');
 Route::get('products/category/{category}', [PublicProductController::class, 'byCategory'])->name('products.byCategory');
+
+Route::get('/contacts', function () {
+    if (auth()->check() && auth()->user()->role === 'admin') {
+        return redirect()->route('admin.dashboard');
+    }
+    return view('contacts');
+})->name('contacts.index')->middleware('auth');
 
 Route::middleware('auth')->group(function () {
     // Профиль
