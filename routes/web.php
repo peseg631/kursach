@@ -23,27 +23,21 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-// Общие маршруты (авторизация, регистрация)
 require __DIR__.'/auth.php';
 
-// Маршрут dashboard для совместимости с шаблоном
 Route::get('/dashboard', function () {
     return Auth::user()->role === 'admin'
         ? redirect()->route('admin.dashboard')
         : redirect()->route('products.index');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-// Маршруты профиля доступные всем авторизованным пользователям (включая админов)
 Route::middleware(['auth', 'verified'])->group(function () {
-    // Профиль
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
 });
 
-// Маршруты для авторизованных пользователей (не админов)
 Route::middleware(['auth', 'verified', 'ensure.not.admin'])->group(function () {
-    // Публичные маршруты для покупателей
     Route::get('/products', [PublicProductController::class, 'index'])->name('products.index');
     Route::get('/products/search', [PublicProductController::class, 'search'])->name('products.search');
     Route::get('/products/{product}', [PublicProductController::class, 'show'])->name('products.show');
@@ -53,17 +47,15 @@ Route::middleware(['auth', 'verified', 'ensure.not.admin'])->group(function () {
         return view('contacts');
     })->name('contacts.index');
 
-    // Корзина
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-    Route::post('/cart/{product}/add', [CartController::class, 'add'])->name('cart.add');
-    Route::delete('/cart/{cartItem}/remove', [CartController::class, 'remove'])->name('cart.remove');
+    Route::post('/cart/toggle/{product}', [CartController::class, 'toggle'])->name('cart.toggle');
+    Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
+    Route::delete('/cart/{cartItem}', [CartController::class, 'remove'])->name('cart.remove');
     Route::patch('/cart/{cartItem}/update', [CartController::class, 'update'])->name('cart.update');
 
-    // Избранное
     Route::get('/favorites', [FavoriteController::class, 'index'])->name('favorites.index');
     Route::post('/favorites/{product}/toggle', [FavoriteController::class, 'toggle'])->name('favorites.toggle');
 
-    // Отзывы
     Route::post('/products/{product}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
     Route::get('/reviews/{review}/edit', [ReviewController::class, 'edit'])->name('reviews.edit');
     Route::patch('/reviews/{review}', [ReviewController::class, 'update'])->name('reviews.update');

@@ -13,25 +13,42 @@ class CartController extends Controller
         $cartItems = auth()->user()->cartItems()->with('product')->get();
         return view('cart.index', compact('cartItems'));
     }
-
-    public function add(Product $product)
+    public function toggle(Product $product)
     {
         $user = auth()->user();
-
         $cartItem = $user->cartItems()->where('product_id', $product->id)->first();
 
         if ($cartItem) {
-            $cartItem->increment('quantity');
+            $cartItem->delete();
+            $message = 'Товар удалён из корзины';
         } else {
             $user->cartItems()->create([
                 'product_id' => $product->id,
-                'quantity' => 1,
+                'quantity' => 1
+            ]);
+            $message = 'Товар добавлен в корзину';
+        }
+
+        return back()->with('success', $message);
+    }
+    public function add(Product $product)
+    {
+        $user = auth()->user();
+        $cartItem = $user->cartItems()->where('product_id', $product->id)->first();
+
+        if ($cartItem) {
+            $cartItem->update([
+                'quantity' => $cartItem->quantity + 1
+            ]);
+        } else {
+            $user->cartItems()->create([
+                'product_id' => $product->id,
+                'quantity' => 1
             ]);
         }
 
         return back()->with('success', 'Товар добавлен в корзину');
     }
-
     public function remove(CartItem $cartItem)
     {
         if ($cartItem->user_id !== auth()->id()) {
@@ -42,7 +59,6 @@ class CartController extends Controller
 
         return back()->with('success', 'Товар удалён из корзины');
     }
-
     public function update(Request $request, CartItem $cartItem)
     {
         if ($cartItem->user_id !== auth()->id()) {

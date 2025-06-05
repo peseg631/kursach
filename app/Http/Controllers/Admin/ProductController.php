@@ -9,23 +9,19 @@ use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    // Список товаров
     public function index(Request $request)
     {
         $query = Product::query();
 
-        // Поиск
         if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where('name', 'like', "%{$search}%");
         }
 
-        // Фильтр по категории
         if ($request->filled('category_id')) {
             $query->where('category_id', $request->input('category_id'));
         }
 
-        // Сортировка
         if ($request->filled('sort')) {
             switch ($request->input('sort')) {
                 case 'price_asc':
@@ -34,10 +30,8 @@ class ProductController extends Controller
                 case 'price_desc':
                     $query->orderBy('price', 'desc');
                     break;
-                // Можно добавить другие варианты сортировки
             }
         } else {
-            // Сортировка по умолчанию
             $query->orderBy('id', 'asc');
         }
 
@@ -46,16 +40,11 @@ class ProductController extends Controller
 
         return view('admin.products.index', compact('products', 'categories'));
     }
-
-
-    // Форма создания нового товара
     public function create()
     {
         $categories = Category::all();
         return view('admin.products.create', compact('categories'));
     }
-
-    // Сохранение нового товара
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -76,13 +65,11 @@ class ProductController extends Controller
         return redirect()->route('admin.products.index')->with('success', 'Товар добавлен');
     }
 
-    // Форма редактирования товара
     public function edit(Product $product)
     {
         return view('admin.products.edit', compact('product'));
     }
 
-    // Обновление товара (полное)
     public function update(Request $request, Product $product)
     {
         $validated = $request->validate([
@@ -103,10 +90,8 @@ class ProductController extends Controller
         return redirect()->route('admin.products.index')->with('success', 'Товар обновлён');
     }
 
-    // Удаление товара
     public function destroy(Product $product)
     {
-        // Удаляем связанные отзывы перед удалением продукта
         $product->reviews()->delete();
 
         $product->delete();

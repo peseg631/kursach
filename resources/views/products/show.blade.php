@@ -25,31 +25,24 @@
         @endif
 
         <div class="flex gap-4 mb-8 flex-wrap">
-            @auth
-                <form action="{{ route('favorites.toggle', $product) }}" method="POST" class="inline">
-                    @csrf
-                    <button type="submit" class="bg-[#365B6A] text-white px-7 py-3 rounded-lg font-bold text-base hover:bg-[#2d4b57] transition-colors whitespace-nowrap">
-                        @php
-                            $isFavorite = auth()->user()->favorites()->where('product_id', $product->id)->exists();
-                        @endphp
+            @php
+                $isFavorite = auth()->check() && auth()->user()->favorites()->where('product_id', $product->id)->exists();
+                $isInCart = auth()->check() && auth()->user()->cartItems()->where('product_id', $product->id)->exists();
+            @endphp
 
-                        @if($isFavorite)
-                            Удалить из избранного
-                        @else
-                            Добавить в избранное
-                        @endif
-                    </button>
-                </form>
+            <form action="{{ route('favorites.toggle', $product) }}" method="POST" class="inline">
+                @csrf
+                <button type="submit" class="bg-[#365B6A] text-white px-7 py-3 rounded-lg font-bold text-base hover:bg-[#2d4b57] transition-colors whitespace-nowrap">
+                    {{ $isFavorite ? 'Удалить из избранного' : 'Добавить в избранное' }}
+                </button>
+            </form>
 
-                <form action="{{ route('cart.add', $product) }}" method="POST" class="inline">
-                    @csrf
-                    <button type="submit" class="bg-[#365B6A] text-white px-7 py-3 rounded-lg font-bold text-base hover:bg-[#2d4b57] transition-colors">Добавить в корзину</button>
-                </form>
-            @else
-                <p class="text-gray-500">
-                    <a href="{{ route('login') }}" class="text-[#365B6A] font-semibold hover:underline">Войдите</a>, чтобы добавить в избранное и корзину
-                </p>
-            @endauth
+            <form action="{{ route('cart.toggle', $product) }}" method="POST" class="inline">
+                @csrf
+                <button type="submit" class="bg-[#365B6A] text-white px-7 py-3 rounded-lg font-bold text-base hover:bg-[#2d4b57] transition-colors whitespace-nowrap">
+                    {{ $isInCart ? 'Удалить из корзины' : 'Добавить в корзину' }}
+                </button>
+            </form>
         </div>
 
         <a href="{{ route('products.index') }}" class="inline-block mb-10 text-[#365B6A] font-semibold hover:text-[#2d4b57] transition-colors">← Вернуться к каталогу</a>

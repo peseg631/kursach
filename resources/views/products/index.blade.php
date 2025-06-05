@@ -4,7 +4,6 @@
     @vite('resources/css/products/index.css')
 @endpush
 
-
 @section('welcome')
     <div class="welcome-container pl-[150px] flex h-[100vh] mt-[50px] justify-between">
         <div class="welcome-left flex flex-col items-start text-[#191919]">
@@ -42,13 +41,10 @@
 @section('content')
     <h1 class="font-montserrat text-2xl font-bold text-[#191919] text-center mb-10">Каталог обуви</h1>
 
-    <!-- Форма фильтрации и сортировки -->
     <form method="GET" action="{{ route('products.index') }}" class="mb-6 flex flex-wrap items-center justify-center gap-4">
-        <!-- Поиск -->
         <input type="text" name="search" placeholder="Поиск по названию" value="{{ request('search') }}"
                class="border rounded-[0.7rem] px-3 py-2 w-64" />
 
-        <!-- Фильтр по категории -->
         <select name="category_id" class="border rounded-[0.7rem] px-3 py-2 w-[180px]">
             <option value="">Все категории</option>
             @foreach($categories as $category)
@@ -56,12 +52,11 @@
             @endforeach
         </select>
 
-        <!-- Объединенная сортировка по цене с иконкой -->
         <div class="relative">
             <select name="price_sort" class="border rounded-[0.7rem] px-8 py-2 appearance-none bg-white">
                 <option value="">Сортировка по цене</option>
-                <option value="asc" @selected(request('price_sort') == 'asc')>По возрастанию цены</option>
-                <option value="desc" @selected(request('price_sort') == 'desc')>По убыванию цены</option>
+                <option value="asc" @selected(request('price_sort') == 'asc')>По возрастанию</option>
+                <option value="desc" @selected(request('price_sort') == 'desc')>По убыванию</option>
             </select>
             <div class="absolute inset-y-0 left-2 flex items-center pointer-events-none">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
@@ -74,17 +69,18 @@
             Применить
         </button>
 
-        <!-- Сброс фильтров -->
         @if(request()->hasAny(['search', 'category_id', 'price_sort']))
             <a href="{{ route('products.index') }}" class="text-gray-600 hover:text-gray-800 underline">
                 Сбросить фильтры
             </a>
         @endif
     </form>
+
     <div class="flex flex-wrap gap-6 mx-32 my-5">
         @forelse ($products as $product)
             @php
                 $isFavorite = auth()->check() && auth()->user()->favorites->contains('product_id', $product->id);
+                $isInCart = auth()->check() && auth()->user()->cartItems()->where('product_id', $product->id)->exists();
                 $itemInCartCount = 0;
                 if(auth()->check() && auth()->user()->role !== 'admin') {
                     $cartItem = auth()->user()->cartItems()->where('product_id', $product->id)->first();
@@ -100,7 +96,6 @@
                         <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="w-full h-44 object-cover rounded-lg">
                     @endif
 
-                    <!-- Кнопка избранного -->
                     <form action="{{ route('favorites.toggle', $product) }}" method="POST" class="absolute top-1.5 right-1.5 z-20">
                         @csrf
                         <div class="relative">
@@ -125,20 +120,27 @@
 
                 <div class="flex justify-between items-center mt-auto">
                     <p class="text-gray-800 font-semibold">{{ number_format($product->price, 2) }} ₽</p>
-                    <form action="{{ route('cart.add', $product) }}" method="POST" class="ml-auto relative z-20">
+                    <form action="{{ route('cart.toggle', $product) }}" method="POST" class="ml-auto relative z-20">
                         @csrf
-                        <button type="submit" title="Добавить в корзину" class="bg-white/80 backdrop-blur-sm border border-gray-200 cursor-pointer rounded-full p-1 transition-all hover:scale-110 hover:shadow-md hover:border-[rgb(54,91,106)]">
-                            <svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="text-[rgb(54,91,106)] mx-auto">
-                                <path d="M21.822 7.431C21.73 7.298 21.607 7.189 21.464 7.114C21.321 7.039 21.162 7 21 7H7.333L6.179 4.23C6.028 3.865 5.772 3.553 5.443 3.334C5.115 3.115 4.728 2.999 4.333 3H2V5H4.333L9.077 16.385C9.153 16.567 9.281 16.723 9.445 16.832C9.61 16.942 9.803 17 10 17H18C18.417 17 18.79 16.741 18.937 16.352L21.937 8.352C21.994 8.201 22.013 8.038 21.993 7.877C21.973 7.717 21.914 7.564 21.822 7.431ZM17.307 15H10.667L8.167 9H19.557L17.307 15Z" fill="currentColor"/>
-                                <path d="M10.5 21C11.328 21 12 20.328 12 19.5C12 18.672 11.328 18 10.5 18C9.672 18 9 18.672 9 19.5C9 20.328 9.672 21 10.5 21Z" fill="currentColor"/>
-                                <path d="M17.5 21C18.328 21 19 20.328 19 19.5C19 18.672 18.328 18 17.5 18C16.672 18 16 18.672 16 19.5C16 20.328 16.672 21 17.5 21Z" fill="currentColor"/>
-                            </svg>
-                        </button>
+                        <div class="relative">
+                            @if($isInCart)
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[rgba(54,91,106,0.4)] opacity-75 -z-10"></span>
+                            @endif
+                            <button type="submit" title="{{ $isInCart ? 'Удалить из корзины' : 'Добавить в корзину' }}"
+                                    class="bg-white/80 backdrop-blur-sm border {{ $isInCart ? 'border-[rgb(54,91,106)] bg-[rgba(54,91,106,0.1)]' : 'border-gray-200 hover:border-[rgb(54,91,106)]' }} cursor-pointer rounded-full p-1 transition-all hover:scale-110 hover:shadow-md relative z-0">
+                                <svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
+                                     class="{{ $isInCart ? 'text-[rgb(54,91,106)]' : 'text-gray-400' }} transition-colors mx-auto">
+                                    <path d="M21.822 7.431C21.73 7.298 21.607 7.189 21.464 7.114C21.321 7.039 21.162 7 21 7H7.333L6.179 4.23C6.028 3.865 5.772 3.553 5.443 3.334C5.115 3.115 4.728 2.999 4.333 3H2V5H4.333L9.077 16.385C9.153 16.567 9.281 16.723 9.445 16.832C9.61 16.942 9.803 17 10 17H18C18.417 17 18.79 16.741 18.937 16.352L21.937 8.352C21.994 8.201 22.013 8.038 21.993 7.877C21.973 7.717 21.914 7.564 21.822 7.431ZM17.307 15H10.667L8.167 9H19.557L17.307 15Z" fill="currentColor"/>
+                                    <path d="M10.5 21C11.328 21 12 20.328 12 19.5C12 18.672 11.328 18 10.5 18C9.672 18 9 18.672 9 19.5C9 20.328 9.672 21 10.5 21Z" fill="currentColor"/>
+                                    <path d="M17.5 21C18.328 21 19 20.328 19 19.5C19 18.672 18.328 18 17.5 18C16.672 18 16 18.672 16 19.5C16 20.328 16.672 21 17.5 21Z" fill="currentColor"/>
+                                </svg>
+                            </button>
+                        </div>
 
-                        @if(auth()->check() && $itemInCartCount > 0)
+                        @if($itemInCartCount > 0)
                             <span class="absolute top-0 right-0 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-[rgb(54,91,106)] rounded-full -translate-y-1/2 translate-x-1/2">
-                            {{ $itemInCartCount }}
-                        </span>
+                                {{ $itemInCartCount }}
+                            </span>
                         @endif
                     </form>
                 </div>
@@ -146,5 +148,5 @@
         @empty
             <p class="w-full text-center">Товары не найдены.</p>
         @endforelse
-    </div
+    </div>
 @endsection
