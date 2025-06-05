@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
-use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;;
+use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\ProductController as PublicProductController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -20,39 +20,38 @@ Route::get('/', function () {
         }
         return redirect()->route('products.index');
     }
-    // Если не авторизован - показываем страницу входа
     return redirect()->route('login');
 });
 
+// Общие маршруты (авторизация, регистрация)
+require __DIR__.'/auth.php';
+
+// Маршрут dashboard для совместимости с шаблоном
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    return Auth::user()->role === 'admin'
+        ? redirect()->route('admin.dashboard')
+        : redirect()->route('products.index');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-// Админские маршруты
-Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/', [AdminController::class, 'index'])->name('dashboard');
-    Route::resource('products', AdminProductController::class);
-    Route::resource('categories', AdminCategoryController::class);
+// Маршруты профиля доступные всем авторизованным пользователям (включая админов)
+Route::middleware(['auth', 'verified'])->group(function () {
+    // Профиль
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
 });
 
-// Публичные маршруты для покупателей
-Route::get('/products', [PublicProductController::class, 'index'])->name('products.index');
-Route::get('/products/search', [PublicProductController::class, 'search'])->name('products.search');
-Route::get('/products/{product}', [PublicProductController::class, 'show'])->name('products.show');
-Route::get('products/category/{category}', [PublicProductController::class, 'byCategory'])->name('products.byCategory');
+// Маршруты для авторизованных пользователей (не админов)
+Route::middleware(['auth', 'verified', 'ensure.not.admin'])->group(function () {
+    // Публичные маршруты для покупателей
+    Route::get('/products', [PublicProductController::class, 'index'])->name('products.index');
+    Route::get('/products/search', [PublicProductController::class, 'search'])->name('products.search');
+    Route::get('/products/{product}', [PublicProductController::class, 'show'])->name('products.show');
+    Route::get('products/category/{category}', [PublicProductController::class, 'byCategory'])->name('products.byCategory');
 
-Route::get('/contacts', function () {
-    if (auth()->check() && auth()->user()->role === 'admin') {
-        return redirect()->route('admin.dashboard');
-    }
-    return view('contacts');
-})->name('contacts.index')->middleware('auth');
-
-Route::middleware('auth')->group(function () {
-    // Профиль
-    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');  // просмотр профиля
-    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit'); // редактирование профиля
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::get('/contacts', function () {
+        return view('contacts');
+    })->name('contacts.index');
 
     // Корзина
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
@@ -73,10 +72,16 @@ Route::middleware('auth')->group(function () {
     // Лайки
     Route::post('/reviews/{review}/like', [LikeController::class, 'toggle'])->name('reviews.like.toggle');
 
+    // Заказы
     Route::get('/order/create', [OrderController::class, 'create'])->name('orders.create');
     Route::post('/order', [OrderController::class, 'store'])->name('orders.store');
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
 });
 
-require __DIR__.'/auth.php';
+// Админские маршруты
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', [AdminController::class, 'index'])->name('dashboard');
+    Route::resource('products', AdminProductController::class);
+    Route::resource('categories', AdminCategoryController::class);
+});

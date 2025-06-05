@@ -35,8 +35,11 @@
 
                 <div>
                     <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Телефон</label>
-                    <input id="phone" name="phone" type="text" value="{{ old('phone', $user->phone) }}"
+                    <input id="phone" name="phone" type="tel" value="{{ old('phone', $user->phone) }}"
+                           placeholder="+7 (XXX) XXX-XX-XX"
+                           oninput="this.value = this.value.replace(/[^0-9+()\s-]/g, '').replace(/(\+.?)\+/, '$1');"
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[rgb(54,91,106)] focus:border-[rgb(54,91,106)]">
+                    <p class="mt-1 text-sm text-gray-500">Формат: +7 (XXX) XXX-XX-XX</p>
                     @error('phone')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
@@ -77,3 +80,26 @@
         </form>
     </div>
 @endsection
+
+<script>
+    document.getElementById('phone')?.addEventListener('keydown', function(e) {
+        // Разрешаем: backspace, delete, tab, escape, enter
+        if ([46, 8, 9, 27, 13].includes(e.keyCode) ||
+            // Разрешаем: Ctrl+A, Ctrl+C, Ctrl+X
+            (e.keyCode == 65 && e.ctrlKey === true) ||
+            (e.keyCode == 67 && e.ctrlKey === true) ||
+            (e.keyCode == 86 && e.ctrlKey === true) ||
+            (e.keyCode == 88 && e.ctrlKey === true) ||
+            // Разрешаем: стрелки
+            (e.keyCode >= 35 && e.keyCode <= 39)) {
+            return;
+        }
+
+        // Запрещаем всё, кроме цифр, +, -, (, ), пробела
+        if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) &&
+            (e.keyCode < 96 || e.keyCode > 105) &&
+            ![43, 45, 32, 40, 41].includes(e.keyCode)) {
+            e.preventDefault();
+        }
+    });
+</script>

@@ -12,7 +12,6 @@ class ProductController extends Controller
     {
         $query = Product::query();
 
-        // Фильтрация и сортировка (ваш текущий код)
         if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where('name', 'like', "%{$search}%");
@@ -27,16 +26,13 @@ class ProductController extends Controller
             $query->orderBy('price', $sortDirection);
         }
 
-        // Получаем featured товар
         $featuredProduct = Product::where('name', 'LIKE', '%Air Max 97%')->first();
-
-        // Если товара нет - можно создать его или использовать первый
         if (!$featuredProduct) {
             $featuredProduct = Product::first();
         }
 
         return view('products.index', [
-            'products' => $query->get(), // Изменено с paginate() на get()
+            'products' => $query->get(),
             'categories' => Category::all(),
             'featuredProduct' => $featuredProduct
         ]);

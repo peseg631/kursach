@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="max-w-6xl mx-auto my-8 px-10 py-8 bg-white shadow-md rounded-xl font-sans text-gray-800">
-        <h1 class="text-2xl font-bold mb-6 text-gray-800">Профиль пользователя</h1>
+        <h1 class="text-2xl font-bold mb-6 text-gray-800">Профиль</h1>
 
         @if(session('success'))
             <div class="mb-5 px-5 py-3 bg-green-100 text-green-800 rounded-lg">

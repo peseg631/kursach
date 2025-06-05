@@ -5,6 +5,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\RedirectIfAuthenticated;
+use App\Http\Middleware\EnsureNotAdmin;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -13,10 +14,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Регистрируем алиас 'admin' для вашего middleware
         $middleware->alias([
             'admin' => AdminMiddleware::class,
             'guest' => RedirectIfAuthenticated::class,
+            'ensure.not.admin' => EnsureNotAdmin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
