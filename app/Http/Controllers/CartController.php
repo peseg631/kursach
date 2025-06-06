@@ -37,9 +37,7 @@ class CartController extends Controller
         $cartItem = $user->cartItems()->where('product_id', $product->id)->first();
 
         if ($cartItem) {
-            $cartItem->update([
-                'quantity' => $cartItem->quantity + 1
-            ]);
+            $cartItem->increment('quantity');
         } else {
             $user->cartItems()->create([
                 'product_id' => $product->id,
@@ -49,13 +47,23 @@ class CartController extends Controller
 
         return back()->with('success', 'Товар добавлен в корзину');
     }
-    public function remove(CartItem $cartItem)
+    public function decrement(Product $product)
     {
-        if ($cartItem->user_id !== auth()->id()) {
-            abort(403, 'Доступ запрещён');
+        $cartItem = auth()->user()->cartItems()->where('product_id', $product->id)->first();
+
+        if ($cartItem->quantity > 1) {
+            $cartItem->decrement('quantity');
+        } else {
+            $cartItem->delete();
         }
 
-        $cartItem->delete();
+        return back()->with('success', 'Количество товара обновлено');
+    }
+    public function remove(Product $product)
+    {
+        auth()->user()->cartItems()
+            ->where('product_id', $product->id)
+            ->delete();
 
         return back()->with('success', 'Товар удалён из корзины');
     }

@@ -73,7 +73,7 @@
                             </td>
                             <td class="px-4 py-3 item-total">{{ number_format($cartItem->product->price * $cartItem->quantity, 2) }} ₽</td>
                             <td class="px-4 py-3">
-                                <form action="{{ route('cart.remove', $cartItem) }}" method="POST">
+                                <form action="{{ route('cart.remove', $cartItem->product) }}" method="POST">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit"

@@ -1,9 +1,5 @@
 @extends('layouts.app')
 
-@push('styles')
-    @vite('resources/css/products/index.css')
-@endpush
-
 @section('welcome')
     <div class="welcome-container pl-[150px] flex h-[100vh] mt-[50px] justify-between">
         <div class="welcome-left flex flex-col items-start text-[#191919]">
@@ -16,16 +12,48 @@
             <div class="welcome-action flex gap-[14px] pt-[30px] items-center">
                 <p class="welcome-price font-bold text-[32px]">{{ number_format($featuredProduct->price, 0, ',', ' ') }} ₽</p>
 
-                <form action="{{ route('cart.add', $featuredProduct) }}" method="POST">
-                    @csrf
-                    <button
-                        type="submit"
-                        title="Добавить в корзину"
-                        class="text-[#fff] text-[24px] font-semibold welcome-btn-cart rounded-[20px] bg-[#365B6A] flex justify-center items-center py-[18px] px-[36px] hover:bg-[#2a4753] transition-colors"
-                    >
-                        В корзину
-                    </button>
-                </form>
+                @php
+                    $inCart = auth()->check() && auth()->user()->cartItems()->where('product_id', $featuredProduct->id)->exists();
+                @endphp
+
+                @if($inCart)
+                    <div class="flex items-center gap-2">
+                        <form action="{{ route('cart.decrement', $featuredProduct) }}" method="POST">
+                            @csrf
+                            <button
+                                type="submit"
+                                title="Уменьшить количество"
+                                class="text-[#fff] text-[24px] font-semibold welcome-btn-cart rounded-l-[20px] bg-[#365B6A] flex justify-center items-center py-[18px] px-[24px] hover:bg-[#2a4753] transition-colors"
+                            >
+                                -
+                            </button>
+                        </form>
+                        <span class="text-[24px] font-semibold bg-[#365B6A] text-[#fff] py-[18px] px-[10px]">
+                            {{ auth()->user()->cartItems()->where('product_id', $featuredProduct->id)->first()->quantity }}
+                        </span>
+                        <form action="{{ route('cart.add', $featuredProduct) }}" method="POST">
+                            @csrf
+                            <button
+                                type="submit"
+                                title="Увеличить количество"
+                                class="text-[#fff] text-[24px] font-semibold welcome-btn-cart rounded-r-[20px] bg-[#365B6A] flex justify-center items-center py-[18px] px-[24px] hover:bg-[#2a4753] transition-colors"
+                            >
+                                +
+                            </button>
+                        </form>
+                    </div>
+                @else
+                    <form action="{{ route('cart.add', $featuredProduct) }}" method="POST">
+                        @csrf
+                        <button
+                            type="submit"
+                            title="Добавить в корзину"
+                            class="text-[#fff] text-[24px] font-semibold welcome-btn-cart rounded-[20px] bg-[#365B6A] flex justify-center items-center py-[18px] px-[36px] hover:bg-[#2a4753] transition-colors"
+                        >
+                            В корзину
+                        </button>
+                    </form>
+                @endif
             </div>
         </div>
         <div class="welcome-right bg-[#365B6A] rounded-tl-[50px] rounded-bl-[50px] w-[35vw] mr-0 h-[85vh]">
