@@ -47,6 +47,7 @@ Route::middleware(['auth', 'verified', 'ensure.not.admin'])->group(function () {
         return view('contacts');
     })->name('contacts.index');
 
+
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
     Route::post('/cart/toggle/{product}', [CartController::class, 'toggle'])->name('cart.toggle');
     Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');

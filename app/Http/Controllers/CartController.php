@@ -8,11 +8,22 @@ use Illuminate\Http\Request;
 
 class CartController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $cartItems = auth()->user()->cartItems()->with('product')->get();
-        return view('cart.index', compact('cartItems'));
+
+        // Рассчитываем сумму выбранных товаров, если пришли выбранные id
+        $selectedSum = 0;
+        $selectedIds = $request->input('selected_items', []);
+        if (!empty($selectedIds)) {
+            $selectedSum = $cartItems
+                ->whereIn('id', $selectedIds)
+                ->sum(fn($item) => $item->product->price * $item->quantity);
+        }
+
+        return view('cart.index', compact('cartItems', 'selectedSum'));
     }
+
     public function toggle(Product $product)
     {
         $user = auth()->user();
@@ -31,6 +42,7 @@ class CartController extends Controller
 
         return back()->with('success', $message);
     }
+
     public function add(Product $product)
     {
         $user = auth()->user();
@@ -47,9 +59,14 @@ class CartController extends Controller
 
         return back()->with('success', 'Товар добавлен в корзину');
     }
+
     public function decrement(Product $product)
     {
         $cartItem = auth()->user()->cartItems()->where('product_id', $product->id)->first();
+
+        if (!$cartItem) {
+            return back()->with('error', 'Товар не найден в корзине');
+        }
 
         if ($cartItem->quantity > 1) {
             $cartItem->decrement('quantity');
@@ -59,6 +76,7 @@ class CartController extends Controller
 
         return back()->with('success', 'Количество товара обновлено');
     }
+
     public function remove(Product $product)
     {
         auth()->user()->cartItems()
@@ -67,6 +85,8 @@ class CartController extends Controller
 
         return back()->with('success', 'Товар удалён из корзины');
     }
+
+    // Метод update можно оставить для универсальности, но в вашем шаблоне он не нужен
     public function update(Request $request, CartItem $cartItem)
     {
         if ($cartItem->user_id !== auth()->id()) {
