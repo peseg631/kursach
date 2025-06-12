@@ -51,6 +51,8 @@ Route::middleware(['auth', 'verified', 'ensure.not.admin'])->group(function () {
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
     Route::post('/cart/toggle/{product}', [CartController::class, 'toggle'])->name('cart.toggle');
     Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
+    Route::post('/cart/update-quantity/{product}', [CartController::class, 'updateQuantity'])
+        ->name('cart.updateQuantity');
     Route::post('/cart/decrement/{product}', [CartController::class, 'decrement'])->name('cart.decrement');
     Route::delete('/cart/{product}', [CartController::class, 'remove'])->name('cart.remove');
     Route::patch('/cart/{cartItem}/update', [CartController::class, 'update'])->name('cart.update');
