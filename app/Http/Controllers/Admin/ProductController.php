@@ -64,12 +64,10 @@ class ProductController extends Controller
 
         return redirect()->route('admin.products.index')->with('success', 'Товар добавлен');
     }
-
     public function edit(Product $product)
     {
         return view('admin.products.edit', compact('product'));
     }
-
     public function update(Request $request, Product $product)
     {
         $validated = $request->validate([
@@ -89,7 +87,6 @@ class ProductController extends Controller
 
         return redirect()->route('admin.products.index')->with('success', 'Товар обновлён');
     }
-
     public function destroy(Product $product)
     {
         $product->reviews()->delete();

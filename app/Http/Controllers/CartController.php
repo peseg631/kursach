@@ -12,7 +12,6 @@ class CartController extends Controller
     {
         $cartItems = auth()->user()->cartItems()->with('product')->get();
 
-        // Рассчитываем сумму выбранных товаров, если пришли выбранные id
         $selectedSum = 0;
         $selectedIds = $request->input('selected_items', []);
         if (!empty($selectedIds)) {
@@ -23,26 +22,6 @@ class CartController extends Controller
 
         return view('cart.index', compact('cartItems', 'selectedSum'));
     }
-
-    public function toggle(Product $product)
-    {
-        $user = auth()->user();
-        $cartItem = $user->cartItems()->where('product_id', $product->id)->first();
-
-        if ($cartItem) {
-            $cartItem->delete();
-            $message = 'Товар удалён из корзины';
-        } else {
-            $user->cartItems()->create([
-                'product_id' => $product->id,
-                'quantity' => 1
-            ]);
-            $message = 'Товар добавлен в корзину';
-        }
-
-        return back()->with('success', $message);
-    }
-
     public function add(Product $product)
     {
         $user = auth()->user();
@@ -59,7 +38,6 @@ class CartController extends Controller
 
         return back()->with('success', 'Товар добавлен в корзину');
     }
-
     public function decrement(Product $product)
     {
         $cartItem = auth()->user()->cartItems()->where('product_id', $product->id)->first();

@@ -60,7 +60,6 @@ class ProfileController extends Controller
             $data['phone'] = $phone;
         }
 
-        // Остальной код остаётся без изменений
         $user->name = $data['name'];
         $user->email = $data['email'];
         $user->phone = $data['phone'] ?? null;
@@ -72,20 +71,5 @@ class ProfileController extends Controller
         $user->save();
 
         return redirect()->route('profile.show')->with('success', 'Профиль обновлён!');
-    }
-
-    // Удалить отдельное поле
-    public function destroyField($field)
-    {
-        $user = Auth::user();
-        $allowed = ['phone']; // Разрешённые к удалению поля
-
-        if (in_array($field, $allowed)) {
-            $user->$field = null;
-            $user->save();
-            return redirect()->route('profile.edit')->with('success', 'Поле удалено.');
-        }
-
-        return redirect()->route('profile.edit')->with('error', 'Удаление этого поля запрещено.');
     }
 }
