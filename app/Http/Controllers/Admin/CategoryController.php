@@ -3,13 +3,17 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Category;
+use App\Services\Admin\CategoryService;
+use Illuminate\View\View;
 
 class CategoryController extends Controller
 {
-    public function index()
+    public function __construct(
+        private CategoryService $categoryService
+    ) {}
+    public function index(): View
     {
-        $categories = Category::paginate(15);
+        $categories = $this->categoryService->getPaginatedCategories();
         return view('admin.categories.index', compact('categories'));
     }
 }
