@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\User;
-use App\Models\Product;
-
 
 class CartItem extends Model
 {
     protected $fillable = ['user_id', 'product_id', 'quantity'];
+
+    protected $casts = [
+        'quantity' => 'integer'
+    ];
 
     public function product()
     {

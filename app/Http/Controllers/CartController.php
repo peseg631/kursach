@@ -2,83 +2,54 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CartItem;
+use App\Http\Requests\CartItemRequest;
 use App\Models\Product;
-use Illuminate\Http\Request;
+use App\Services\CartService;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class CartController extends Controller
 {
-    public function index(Request $request)
-    {
-        $cartItems = auth()->user()->cartItems()->with('product')->get();
+    public function __construct(
+        private CartService $cartService
+    ) {}
 
-        $selectedSum = 0;
-        $selectedIds = $request->input('selected_items', []);
-        if (!empty($selectedIds)) {
-            $selectedSum = $cartItems
-                ->whereIn('id', $selectedIds)
-                ->sum(fn($item) => $item->product->price * $item->quantity);
-        }
+    public function index(): View
+    {
+        $cartItems = $this->cartService->getCartItems();
+        $selectedSum = $this->cartService->calculateSelectedSum(
+            $cartItems,
+            request()->input('selected_items', [])
+        );
 
         return view('cart.index', compact('cartItems', 'selectedSum'));
     }
-    public function add(Product $product)
+
+    public function add(Product $product): RedirectResponse
     {
-        $user = auth()->user();
-        $cartItem = $user->cartItems()->where('product_id', $product->id)->first();
-
-        if ($cartItem) {
-            $cartItem->increment('quantity');
-        } else {
-            $user->cartItems()->create([
-                'product_id' => $product->id,
-                'quantity' => 1
-            ]);
-        }
-
+        $this->cartService->addProduct($product);
         return back()->with('success', 'Товар добавлен в корзину');
     }
-    public function decrement(Product $product)
+
+    public function decrement(Product $product): RedirectResponse
     {
-        $cartItem = auth()->user()->cartItems()->where('product_id', $product->id)->first();
-
-        if (!$cartItem) {
-            return back()->with('error', 'Товар не найден в корзине');
+        try {
+            $this->cartService->decrementProduct($product);
+            return back()->with('success', 'Количество товара обновлено');
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
         }
-
-        if ($cartItem->quantity > 1) {
-            $cartItem->decrement('quantity');
-        } else {
-            $cartItem->delete();
-        }
-
-        return back()->with('success', 'Количество товара обновлено');
     }
 
-    public function remove(Product $product)
+    public function remove(Product $product): RedirectResponse
     {
-        auth()->user()->cartItems()
-            ->where('product_id', $product->id)
-            ->delete();
-
+        $this->cartService->removeProduct($product);
         return back()->with('success', 'Товар удалён из корзины');
     }
 
-    // Метод update можно оставить для универсальности, но в вашем шаблоне он не нужен
-    public function update(Request $request, CartItem $cartItem)
+    public function update(CartItemRequest $request, CartItemRequest $cartItem): RedirectResponse
     {
-        if ($cartItem->user_id !== auth()->id()) {
-            abort(403, 'Доступ запрещён');
-        }
-
-        $request->validate([
-            'quantity' => 'required|integer|min:1',
-        ]);
-
-        $cartItem->update([
-            'quantity' => $request->quantity,
-        ]);
-
+        $this->cartService->updateQuantity($cartItem, $request->quantity);
         return back()->with('success', 'Количество обновлено');
     }
 }

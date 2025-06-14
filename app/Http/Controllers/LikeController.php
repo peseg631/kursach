@@ -2,27 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Like;
+use App\Services\LikeService;
 use App\Models\Review;
-use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+
 class LikeController extends Controller
 {
-    public function toggle(Review $review)
+    public function __construct(
+        private LikeService $likeService
+    ) {}
+
+    public function toggle(Review $review): RedirectResponse
     {
-        $user = Auth::user();
-
-        $like = $review->likes()->where('user_id', $user->id)->first();
-
-        if ($like) {
-            $like->delete();
-        } else {
-            Like::create([
-                'review_id' => $review->id,
-                'user_id' => $user->id
-            ]);
-        }
-
+        $this->likeService->toggleLike($review, Auth::user());
         return redirect()->back();
     }
 }

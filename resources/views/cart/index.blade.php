@@ -11,7 +11,6 @@
         @endif
 
         @if($cartItems->count() > 0)
-            {{-- Форма только для чекбоксов --}}
             <form id="cart-form" action="{{ route('cart.index') }}" method="GET">
                 <div class="overflow-x-auto mb-8">
                     <table class="w-full bg-white rounded-lg overflow-hidden shadow-sm">
@@ -58,7 +57,6 @@
                                 <td class="px-4 py-3">{{ number_format($cartItem->product->price, 2) }} ₽</td>
                                 <td class="px-4 py-3">
                                     <div class="flex items-center gap-2">
-                                        {{-- Отдельные формы для кнопок "-" и "+" вне формы с чекбоксами --}}
                                         <form action="{{ route('cart.decrement', $cartItem->product) }}" method="POST" style="display:inline;">
                                             @csrf
                                             <button type="submit" class="px-2 py-1 bg-gray-200 rounded text-xl font-bold" @if($cartItem->quantity <= 1) disabled @endif>-</button>
@@ -72,7 +70,7 @@
                                 </td>
                                 <td class="px-4 py-3">{{ number_format($cartItem->product->price * $cartItem->quantity, 2) }} ₽</td>
                                 <td class="px-4 py-3">
-                                    <form action="{{ route('cart.remove', $cartItem->product) }}" method="POST">
+                                    <form action="{{ route('cart.destroy', $cartItem) }}" method="POST">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit"

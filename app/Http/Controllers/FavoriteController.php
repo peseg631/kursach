@@ -2,31 +2,30 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Favorite;
 use App\Models\Product;
-use Illuminate\Http\Request;
+use App\Services\FavoriteService;
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
 
 class FavoriteController extends Controller
 {
-    public function index()
-    {
-        $favorites = auth()->user()->favorites()->with('product')->get();
+    public function __construct(
+        private FavoriteService $favoriteService
+    ) {}
 
+    public function index(): View
+    {
+        $favorites = $this->favoriteService->getUserFavorites(auth()->user());
         return view('favorites.index', compact('favorites'));
     }
 
-    public function toggle(Product $product)
+    public function toggle(Product $product): RedirectResponse
     {
-        $user = auth()->user();
-        $favorite = $user->favorites()->where('product_id', $product->id)->first();
+        $message = $this->favoriteService->toggle(
+            auth()->user(),
+            $product
+        );
 
-        if ($favorite) {
-            $favorite->delete();
-            $message = 'Товар удалён из избранного';
-        } else {
-            $user->favorites()->create(['product_id' => $product->id]);
-            $message = 'Товар добавлен в избранное';
-        }
         return back()->with('success', $message);
     }
 }
