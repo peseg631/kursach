@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Services\Admin;
+namespace App\Services\Category;
 
 use App\Models\Category;
 use Illuminate\Pagination\LengthAwarePaginator;
 
-class CategoryService
+class AdminCategoryService
 {
     public function getPaginatedCategories(): LengthAwarePaginator
     {

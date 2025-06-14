@@ -4,7 +4,7 @@
     <div class="max-w-3xl mx-auto my-10 p-8 bg-white rounded-xl shadow-lg font-sans text-gray-800">
         <h1 class="text-3xl font-bold mb-8 text-gray-900">Редактирование отзыва</h1>
 
-        <form method="POST" action="{{ route('reviews.update', $review) }}" class="mb-8">
+        <form method="POST" action="{{ route('products.reviews.update', ['product' => $review->product_id, 'review' => $review->id]) }}" class="mb-8">
             @csrf
             @method('PATCH')
 

@@ -81,25 +81,3 @@
     </div>
 @endsection
 
-<script>
-    document.getElementById('phone')?.addEventListener('keydown', function(e) {
-        // Разрешаем: backspace, delete, tab, escape, enter
-        if ([46, 8, 9, 27, 13].includes(e.keyCode) ||
-            // Разрешаем: Ctrl+A, Ctrl+C, Ctrl+X
-            (e.keyCode == 65 && e.ctrlKey === true) ||
-            (e.keyCode == 67 && e.ctrlKey === true) ||
-            (e.keyCode == 86 && e.ctrlKey === true) ||
-            (e.keyCode == 88 && e.ctrlKey === true) ||
-            // Разрешаем: стрелки
-            (e.keyCode >= 35 && e.keyCode <= 39)) {
-            return;
-        }
-
-        // Запрещаем всё, кроме цифр, +, -, (, ), пробела
-        if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) &&
-            (e.keyCode < 96 || e.keyCode > 105) &&
-            ![43, 45, 32, 40, 41].includes(e.keyCode)) {
-            e.preventDefault();
-        }
-    });
-</script>

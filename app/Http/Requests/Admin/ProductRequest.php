@@ -18,7 +18,7 @@ class ProductRequest extends FormRequest
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'category_id' => 'required|exists:categories,id',
-            'image' => $this->isMethod('POST') ? 'required|image|max:2048' : 'nullable|image|max:2048'
+            'image' => 'nullable|image|max:2048' // Изменено на nullable
         ];
     }
 }

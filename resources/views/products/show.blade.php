@@ -101,7 +101,7 @@
                     </div>
                 @endif
 
-                <form method="POST" action="{{ route('reviews.store', $product) }}" class="mb-10">
+                <form method="POST" action="{{ route('products.reviews.store', $product) }}" class="mb-10">
                     @csrf
                     <div class="mb-5">
                         <label for="rating" class="block font-semibold mb-2 text-gray-700">Оценка:</label>
@@ -152,10 +152,9 @@
 
                         @auth
                             @if (auth()->id() === $review->user_id)
-                                <a href="{{ route('reviews.edit', $review) }}" class="text-[#365B6A] font-semibold text-sm hover:underline">Редактировать</a>
+                                <a href="{{ route('products.reviews.edit', ['product' => $product, 'review' => $review]) }}" class="text-[#365B6A] font-semibold text-sm hover:underline">Редактировать</a>
 
-                                <form method="POST" action="{{ route('reviews.destroy', $review) }}" class="inline">
-                                    @csrf
+                                <form method="POST" action="{{ route('products.reviews.destroy', ['product' => $product, 'review' => $review]) }}" class="inline">                                    @csrf
                                     @method('DELETE')
                                     <button type="submit" onclick="return confirm('Удалить отзыв?')" class="text-[#365B6A] font-semibold text-sm hover:underline">Удалить</button>
                                 </form>

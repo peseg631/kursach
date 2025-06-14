@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Services\Admin\CategoryService;
+use App\Services\Category\AdminCategoryService;
 use Illuminate\View\View;
 
 class CategoryController extends Controller
 {
     public function __construct(
-        private CategoryService $categoryService
+        private AdminCategoryService $categoryService
     ) {}
     public function index(): View
     {

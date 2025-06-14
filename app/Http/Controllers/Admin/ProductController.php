@@ -4,24 +4,28 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ProductRequest;
+use App\Services\Product\AdminProductService;
 use App\Models\Product;
 use App\Models\Category;
-use App\Services\Admin\ProductService;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 
 class ProductController extends Controller
 {
     public function __construct(
-        private ProductService $productService
+        private AdminProductService $productService
     ) {}
 
     public function index(): View
     {
-        $products = $this->productService->getFilteredProducts(request()->all());
-        $categories = Category::all();
-
-        return view('admin.products.index', compact('products', 'categories'));
+        return view('admin.products.index', [
+            'products' => $this->productService->filterProducts(
+                request()->all(),
+                true,
+                10
+            ),
+            'categories' => Category::all()
+        ]);
     }
 
     public function create(): View

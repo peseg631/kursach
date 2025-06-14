@@ -30,7 +30,6 @@
                class="px-5 py-2 bg-[rgb(54,91,106)] text-white rounded-lg font-bold no-underline transition-colors hover:bg-[rgb(45,75,88)]">
                 Редактировать профиль
             </a>
-
         </div>
     </div>
 @endsection
