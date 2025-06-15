@@ -19,10 +19,6 @@
                         <span class="font-medium">{{ $order->created_at->format('d.m.Y H:i') }}</span>
                     </p>
                     <p class="flex justify-between">
-                        <span class="text-gray-600">Статус:</span>
-                        <span class="font-medium capitalize">{{ $order->status }}</span>
-                    </p>
-                    <p class="flex justify-between">
                         <span class="text-gray-600">Адрес доставки:</span>
                         <span class="font-medium">{{ $order->address }}</span>
                     </p>

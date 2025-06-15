@@ -11,7 +11,6 @@
         @endif
 
         @if($cartItems->count() > 0)
-            {{-- Форма только для чекбоксов --}}
             <form id="cart-form" action="{{ route('cart.index') }}" method="GET">
                 <div class="overflow-x-auto mb-8">
                     <table class="w-full bg-white rounded-lg overflow-hidden shadow-sm">
@@ -45,9 +44,9 @@
                                                  alt="{{ $cartItem->product->name }}"
                                                  class="max-w-full max-h-full object-contain p-1">
                                         @else
-                                            <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                            </svg>
+                                            <img src="{{ asset('images/no_img.png') }}"
+                                                 alt="Нет изображения"
+                                                 class="max-w-full max-h-full object-contain p-1">
                                         @endif
                                     </div>
                                     <a href="{{ route('products.show', $cartItem->product) }}"
@@ -58,7 +57,6 @@
                                 <td class="px-4 py-3">{{ number_format($cartItem->product->price, 2) }} ₽</td>
                                 <td class="px-4 py-3">
                                     <div class="flex items-center gap-2">
-                                        {{-- Отдельные формы для кнопок "-" и "+" вне формы с чекбоксами --}}
                                         <form action="{{ route('cart.decrement', $cartItem->product) }}" method="POST" style="display:inline;">
                                             @csrf
                                             <button type="submit" class="px-2 py-1 bg-gray-200 rounded text-xl font-bold" @if($cartItem->quantity <= 1) disabled @endif>-</button>
@@ -90,21 +88,21 @@
 
             <div class="flex flex-col items-end gap-4 p-4 bg-gray-50 rounded-lg">
                 <p class="text-lg">
-                    <strong>Итоговая сумма:</strong>
+                    <strong>Общая сумма:</strong>
                     <span class="font-bold text-[rgb(54,91,106)]">
-                        {{ number_format($cartItems->sum(fn($item) => $item->product->price * $item->quantity), 2) }}
-                    </span> ₽
+            {{ number_format($cartItems->sum(fn($item) => $item->product->price * $item->quantity), 2) }}
+        </span> ₽
                 </p>
 
-                @isset($selectedSum)
+                @if(!empty($selectedIds) && $selectedSum > 0)
                     <p class="text-md">
                         <strong>Сумма выбранных:</strong>
                         <span class="font-bold text-[rgb(54,91,106)]">{{ number_format($selectedSum, 2) }}</span> ₽
                     </p>
-                @endisset
+                @endif
 
                 <div class="flex gap-2">
-                    <a href="{{ route('orders.create') }}"
+                    <a href="{{ route('orders.create', ['selected_items' => $selectedIds ?? []]) }}"
                        class="px-5 py-2 bg-green-600 text-white rounded-lg font-bold no-underline transition-colors hover:bg-green-700">
                         Оформить заказ
                     </a>

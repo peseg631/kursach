@@ -2,34 +2,29 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ProductIndexRequest;
 use App\Models\Product;
 use App\Models\Category;
-use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    public function index(Request $request)
+    public function index(ProductIndexRequest $request)
     {
         $query = Product::query();
 
         if ($request->filled('search')) {
-            $search = $request->input('search');
-            $query->where('name', 'like', "%{$search}%");
+            $query->where('name', 'like', "%{$request->search}%");
         }
 
         if ($request->filled('category_id')) {
-            $query->where('category_id', $request->input('category_id'));
+            $query->where('category_id', $request->category_id);
         }
 
         if ($request->filled('price_sort')) {
-            $sortDirection = $request->input('price_sort');
-            $query->orderBy('price', $sortDirection);
+            $query->orderBy('price', $request->price_sort);
         }
 
-        $featuredProduct = Product::where('name', 'LIKE', '%Air Max 97%')->first();
-        if (!$featuredProduct) {
-            $featuredProduct = Product::first();
-        }
+        $featuredProduct = Product::where('name', 'LIKE', '%Air Max 97%')->first() ?? Product::first();
 
         return view('products.index', [
             'products' => $query->get(),
@@ -37,6 +32,7 @@ class ProductController extends Controller
             'featuredProduct' => $featuredProduct
         ]);
     }
+
     public function show(Product $product)
     {
         return view('products.show', compact('product'));

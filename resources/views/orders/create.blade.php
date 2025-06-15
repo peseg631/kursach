@@ -4,13 +4,28 @@
     <div class="max-w-6xl mx-auto my-8 px-10 py-8 bg-white shadow-md rounded-xl font-sans text-gray-800">
         <h1 class="text-2xl font-bold mb-6 text-gray-800">Оформление заказа</h1>
 
+        @if($errors->any())
+            <div class="mb-5 p-4 bg-red-100 text-red-800 rounded-lg">
+                <ul class="list-disc pl-5">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <form method="POST" action="{{ route('orders.store') }}" class="space-y-6">
             @csrf
 
-            <!-- Передаём все выбранные товары -->
-            @foreach($cartItems as $item)
-                <input type="hidden" name="selected_items[]" value="{{ $item->id }}">
-            @endforeach
+            @if(!empty($selectedIds))
+                @foreach($selectedIds as $itemId)
+                    <input type="hidden" name="selected_items[]" value="{{ $itemId }}">
+                @endforeach
+            @else
+                @foreach($cartItems as $item)
+                    <input type="hidden" name="selected_items[]" value="{{ $item->id }}">
+                @endforeach
+            @endif
 
             <div class="bg-gray-50 p-6 rounded-lg">
                 <h3 class="text-lg font-semibold mb-4 text-[rgb(54,91,106)]">Товары в заказе:</h3>

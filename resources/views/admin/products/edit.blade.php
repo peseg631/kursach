@@ -65,11 +65,11 @@
                 </label>
                 <input type="file" name="image" id="image" accept="image/*"
                        class="block w-full text-sm text-gray-500
-                              file:mr-4 file:py-2 file:px-4
-                              file:rounded-[0.7rem] file:border-0
-                              file:text-sm file:font-semibold
-                              file:bg-[rgb(54,91,106)] file:text-white
-                              hover:file:bg-[rgb(45,75,88)]" />
+                  file:mr-4 file:py-2 file:px-4
+                  file:rounded-[0.7rem] file:border-0
+                  file:text-sm file:font-semibold
+                  file:bg-[rgb(54,91,106)] file:text-white
+                  hover:file:bg-[rgb(45,75,88)]" />
             </div>
 
             @if($product->image)
@@ -78,11 +78,17 @@
                     <div class="flex items-center gap-4">
                         <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}"
                              class="h-24 object-contain border border-gray-200 rounded-lg">
-                        <label class="flex items-center gap-2 text-sm text-gray-600">
-                            <input type="checkbox" name="remove_image" value="1" class="rounded text-[rgb(54,91,106)]">
+                        <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+                            <input type="checkbox" name="remove_image" value="1"
+                                   class="rounded text-[rgb(54,91,106)] focus:ring-[rgb(54,91,106)] h-4 w-4">
                             Удалить изображение
                         </label>
                     </div>
+                </div>
+            @else
+                <div class="mt-4">
+                    <p class="text-sm font-medium text-gray-700 mb-2">Текущее изображение:</p>
+                    <p class="text-sm text-gray-500 italic">Изображение отсутствует</p>
                 </div>
             @endif
 

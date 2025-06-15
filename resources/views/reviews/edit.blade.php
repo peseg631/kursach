@@ -12,7 +12,7 @@
                 <label for="rating" class="block font-semibold mb-2 text-gray-700">Оценка:</label>
                 <select name="rating" id="rating" required class="w-full p-3 border border-gray-300 rounded-lg text-gray-900 focus:border-blue-500 focus:outline-none">
                     @for ($i = 1; $i <= 5; $i++)
-                        <option value="{{ $i }}" {{ $review->rating == $i ? 'selected' : '' }}>{{ $i }}</option>
+                        <option value="{{ $i }}" {{ old('rating', $review->rating) == $i ? 'selected' : '' }}>{{ $i }}</option>
                     @endfor
                 </select>
                 @error('rating')
@@ -21,8 +21,8 @@
             </div>
 
             <div class="mb-5">
-                <label for="text" class="block font-semibold mb-2 text-gray-700">Отзыв:</label>
-                <textarea name="text" id="text" rows="5" required class="w-full p-3 border border-gray-300 rounded-lg text-gray-900 focus:border-blue-500 focus:outline-none">{{ old('text', $review->text) }}</textarea>
+                <label for="text" class="block font-semibold mb-2 text-gray-700">Отзыв (необязательно):</label>
+                <textarea name="text" id="text" rows="5" class="w-full p-3 border border-gray-300 rounded-lg text-gray-900 focus:border-blue-500 focus:outline-none">{{ old('text', $review->text) }}</textarea>
                 @error('text')
                 <div class="text-red-700 text-sm mt-1">{{ $message }}</div>
                 @enderror

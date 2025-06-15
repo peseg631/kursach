@@ -2,22 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Favorite;
 use App\Models\Product;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class FavoriteController extends Controller
 {
     public function index()
     {
-        $favorites = auth()->user()->favorites()->with('product')->get();
-
+        $favorites = Auth::user()->favorites()->with('product')->get();
         return view('favorites.index', compact('favorites'));
     }
 
     public function toggle(Product $product)
     {
-        $user = auth()->user();
+        $user = Auth::user();
         $favorite = $user->favorites()->where('product_id', $product->id)->first();
 
         if ($favorite) {
@@ -27,6 +25,7 @@ class FavoriteController extends Controller
             $user->favorites()->create(['product_id' => $product->id]);
             $message = 'Товар добавлен в избранное';
         }
+
         return back()->with('success', $message);
     }
 }

@@ -11,16 +11,18 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('products', function ($table) {
-            $table->text('description')->nullable();
+        Schema::table('reviews', function (Blueprint $table) {
+            $table->text('text')->nullable()->change();
         });
     }
 
-    public function down()
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
     {
-        Schema::table('products', function ($table) {
-            $table->dropColumn('description');
+        Schema::table('reviews', function (Blueprint $table) {
+            //
         });
     }
-
 };

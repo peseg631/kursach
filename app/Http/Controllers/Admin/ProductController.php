@@ -3,61 +3,54 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\ProductIndexRequest;
+use App\Http\Requests\Admin\ProductStoreRequest;
+use App\Http\Requests\Admin\ProductUpdateRequest;
 use App\Models\Product;
 use App\Models\Category;
-use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    public function index(Request $request)
+    public function index(ProductIndexRequest $request)
     {
         $query = Product::query();
 
         if ($request->filled('search')) {
-            $search = $request->input('search');
-            $query->where('name', 'like', "%{$search}%");
+            $query->where('name', 'like', "%{$request->search}%");
         }
 
         if ($request->filled('category_id')) {
-            $query->where('category_id', $request->input('category_id'));
+            $query->where('category_id', $request->category_id);
         }
 
-        if ($request->filled('sort')) {
-            switch ($request->input('sort')) {
-                case 'price_asc':
-                    $query->orderBy('price', 'asc');
-                    break;
-                case 'price_desc':
-                    $query->orderBy('price', 'desc');
-                    break;
-            }
-        } else {
-            $query->orderBy('id', 'asc');
-        }
+        $query->when($request->filled('sort'), function ($q) use ($request) {
+            match ($request->sort) {
+                'price_asc' => $q->orderBy('price', 'asc'),
+                'price_desc' => $q->orderBy('price', 'desc'),
+                default => $q->orderBy('id', 'asc'),
+            };
+        }, function ($q) {
+            $q->orderBy('id', 'asc');
+        });
 
         $products = $query->paginate(10)->withQueryString();
         $categories = Category::all();
 
         return view('admin.products.index', compact('products', 'categories'));
     }
+
     public function create()
     {
         $categories = Category::all();
         return view('admin.products.create', compact('categories'));
     }
-    public function store(Request $request)
+
+    public function store(ProductStoreRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'price' => 'required|numeric|min:0',
-            'image' => 'nullable|image|max:2048',
-            'category_id' => 'required|exists:categories,id',
-        ]);
+        $validated = $request->validated();
 
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('products', 'public');
-            $validated['image'] = $path;
+            $validated['image'] = $request->file('image')->store('products', 'public');
         }
 
         Product::create($validated);
@@ -67,22 +60,20 @@ class ProductController extends Controller
 
     public function edit(Product $product)
     {
-        return view('admin.products.edit', compact('product'));
+        $categories = Category::all();
+        return view('admin.products.edit', compact('product', 'categories'));
     }
 
-    public function update(Request $request, Product $product)
+    public function update(ProductUpdateRequest $request, Product $product)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'price' => 'required|numeric|min:0',
-            'image' => 'nullable|image|max:2048',
-            'category_id' => 'required|exists:categories,id',
-        ]);
+        $validated = $request->validated();
+
+        if ($request->has('remove_image')) {
+            $validated['image'] = null;
+        }
 
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('products', 'public');
-            $validated['image'] = $path;
+            $validated['image'] = $request->file('image')->store('products', 'public');
         }
 
         $product->update($validated);
@@ -93,7 +84,6 @@ class ProductController extends Controller
     public function destroy(Product $product)
     {
         $product->reviews()->delete();
-
         $product->delete();
 
         return redirect()->route('admin.products.index')->with('success', 'Товар удалён');

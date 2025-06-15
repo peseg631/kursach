@@ -117,14 +117,14 @@
             @endphp
 
             <div class="flex flex-col border border-gray-300 rounded-xl p-3 w-[220px] bg-white shadow-sm hover:shadow-md transition-shadow relative group">
-                <!-- Обертка для кликабельных элементов (изображение и название) -->
                 <a href="{{ route('products.show', $product) }}" class="block mb-3">
                     <div class="relative">
                         @if($product->image)
                             <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="w-full h-44 object-cover rounded-lg">
+                        @else
+                            <img src="{{ asset('images/no_img.png') }}" alt="Нет изображения" class="w-full h-44 object-cover rounded-lg">
                         @endif
 
-                        <!-- Кнопка избранного - выносим за пределы ссылки -->
                         <form action="{{ route('favorites.toggle', $product) }}" method="POST" class="absolute top-1.5 right-1.5 z-10">
                             @csrf
                             <div class="relative">
@@ -145,7 +145,6 @@
                     <h3 class="text-center text-base font-semibold my-2 text-gray-800">{{ $product->name }}</h3>
                 </a>
 
-                <!-- Блок с ценой и кнопками корзины -->
                 <div class="flex justify-between items-center mt-auto">
                     <p class="text-gray-800 font-semibold">{{ number_format($product->price, 2) }} ₽</p>
 
@@ -161,9 +160,7 @@
                                     -
                                 </button>
                             </form>
-                            <span class="text-[14px] font-semibold bg-[#365B6A] text-[#fff] py-[8px] px-[6px]">
-                    {{ $itemInCartCount }}
-                </span>
+                            <span class="text-[14px] font-semibold bg-[#365B6A] text-[#fff] py-[8px] px-[6px]">{{ $itemInCartCount }}</span>
                             <form action="{{ route('cart.add', $product) }}" method="POST">
                                 @csrf
                                 <button

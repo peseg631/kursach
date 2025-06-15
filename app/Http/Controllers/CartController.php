@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CartItemUpdateRequest;
 use App\Models\CartItem;
 use App\Models\Product;
 use Illuminate\Http\Request;
@@ -10,18 +11,23 @@ class CartController extends Controller
 {
     public function index(Request $request)
     {
-        $cartItems = auth()->user()->cartItems()->with('product')->get();
+        $user = auth()->user();
+        $cartItems = $user->cartItems()->with('product')->get();
 
-        // Рассчитываем сумму выбранных товаров, если пришли выбранные id
-        $selectedSum = 0;
         $selectedIds = $request->input('selected_items', []);
-        if (!empty($selectedIds)) {
-            $selectedSum = $cartItems
-                ->whereIn('id', $selectedIds)
-                ->sum(fn($item) => $item->product->price * $item->quantity);
-        }
+        $selectedSum = 0;
 
-        return view('cart.index', compact('cartItems', 'selectedSum'));
+        $itemsToCalculate = !empty($selectedIds)
+            ? $cartItems->whereIn('id', $selectedIds)
+            : $cartItems;
+
+        $selectedSum = $itemsToCalculate->sum(fn($item) => $item->product->price * $item->quantity);
+
+        return view('cart.index', [
+            'cartItems' => $cartItems,
+            'selectedSum' => $selectedSum,
+            'selectedIds' => $selectedIds
+        ]);
     }
 
     public function toggle(Product $product)
@@ -62,11 +68,7 @@ class CartController extends Controller
 
     public function decrement(Product $product)
     {
-        $cartItem = auth()->user()->cartItems()->where('product_id', $product->id)->first();
-
-        if (!$cartItem) {
-            return back()->with('error', 'Товар не найден в корзине');
-        }
+        $cartItem = auth()->user()->cartItems()->where('product_id', $product->id)->firstOrFail();
 
         if ($cartItem->quantity > 1) {
             $cartItem->decrement('quantity');
@@ -86,16 +88,9 @@ class CartController extends Controller
         return back()->with('success', 'Товар удалён из корзины');
     }
 
-    // Метод update можно оставить для универсальности, но в вашем шаблоне он не нужен
-    public function update(Request $request, CartItem $cartItem)
+    public function update(CartItemUpdateRequest $request, CartItem $cartItem)
     {
-        if ($cartItem->user_id !== auth()->id()) {
-            abort(403, 'Доступ запрещён');
-        }
-
-        $request->validate([
-            'quantity' => 'required|integer|min:1',
-        ]);
+        $this->authorize('update', $cartItem);
 
         $cartItem->update([
             'quantity' => $request->quantity,

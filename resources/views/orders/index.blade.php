@@ -19,7 +19,6 @@
                     <tr>
                         <th class="px-4 py-3 bg-[rgb(70,115,133)] font-bold text-gray-100 text-left">Номер заказа</th>
                         <th class="px-4 py-3 bg-[rgb(70,115,133)] font-bold text-gray-100 text-left">Дата</th>
-                        <th class="px-4 py-3 bg-[rgb(70,115,133)] font-bold text-gray-100 text-left">Статус</th>
                         <th class="px-4 py-3 bg-[rgb(70,115,133)] font-bold text-gray-100 text-left">Сумма</th>
                     </tr>
                     </thead>
@@ -32,15 +31,6 @@
                                 </a>
                             </td>
                             <td class="px-4 py-3">{{ $order->created_at->format('d.m.Y H:i') }}</td>
-                            <td class="px-4 py-3">
-                                    <span class="capitalize px-3 py-1 rounded-full text-sm
-                                        @if($order->status === 'completed') bg-green-100 text-green-800
-                                        @elseif($order->status === 'cancelled') bg-red-100 text-red-800
-                                        @else bg-blue-100 text-blue-800
-                                        @endif">
-                                        {{ $order->status }}
-                                    </span>
-                            </td>
                             <td class="px-4 py-3 font-semibold">{{ number_format($order->total_price, 2) }} ₽</td>
                         </tr>
                     @endforeach

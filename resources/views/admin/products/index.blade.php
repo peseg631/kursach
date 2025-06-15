@@ -15,11 +15,9 @@
         </a>
 
         <form method="GET" action="{{ route('admin.products.index') }}" class="mb-8 flex flex-wrap items-center justify-center gap-4">
-            <!-- Поиск -->
             <input type="text" name="search" placeholder="Поиск по названию" value="{{ request('search') }}"
                    class="border border-gray-300 rounded-[0.7rem] px-4 py-2 w-64 focus:ring-[rgb(54,91,106)] focus:border-[rgb(54,91,106)]" />
 
-            <!-- Фильтр по категории -->
             <select name="category_id" class="border border-gray-300 rounded-[0.7rem] px-4 py-2 focus:ring-[rgb(54,91,106)] focus:border-[rgb(54,91,106)]">
                 <option value="">Все категории</option>
                 @foreach($categories as $category)
@@ -27,7 +25,6 @@
                 @endforeach
             </select>
 
-            <!-- Объединенная сортировка по цене с иконкой -->
             <div class="relative">
                 <select name="sort" class="border border-gray-300 rounded-[0.7rem] px-8 py-2 appearance-none bg-white focus:ring-[rgb(54,91,106)] focus:border-[rgb(54,91,106)]">
                     <option value="">Сортировка по цене</option>
@@ -45,7 +42,6 @@
                 Применить
             </button>
 
-            <!-- Сброс фильтров -->
             @if(request()->hasAny(['search', 'category_id', 'sort']))
                 <a href="{{ route('admin.products.index') }}" class="text-gray-600 hover:text-gray-800 underline">
                     Сбросить фильтры
@@ -74,7 +70,7 @@
                             @if($product->image)
                                 <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="h-16 object-contain">
                             @else
-                                <span class="text-gray-500">Нет изображения</span>
+                                <img src="{{ asset('images/no_img.png') }}" alt="Нет изображения" class="h-16 object-contain opacity-50">
                             @endif
                         </td>
                         <td class="px-4 py-3 flex gap-3">

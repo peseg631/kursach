@@ -11,16 +11,15 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('products', function ($table) {
-            $table->string('image')->nullable();
+        Schema::table('orders', function (Blueprint $table) {
+            $table->dropColumn('status');
         });
     }
 
     public function down()
     {
-        Schema::table('products', function ($table) {
-            $table->dropColumn('image');
+        Schema::table('orders', function (Blueprint $table) {
+            $table->string('status')->default('new');
         });
     }
-
 };
