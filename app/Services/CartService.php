@@ -7,41 +7,56 @@ use App\Models\Product;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class CartService
 {
-    public function __construct(
-        private User $user
-    ) {}
+    protected ?User $user;
+
+    public function __construct()
+    {
+        $this->user = Auth::user();
+
+        if (!$this->user) {
+            throw new \RuntimeException('User must be authenticated to use cart');
+        }
+    }
 
     public function getCartItems(): Collection
     {
-        return $this->user->cartItems()->with('product')->get();
+        return $this->getAuthenticatedUser()->cartItems()->with('product')->get();
     }
 
     public function calculateSelectedSum(Collection $cartItems, array $selectedIds): float
     {
-        return $cartItems
-            ->whereIn('id', $selectedIds)
-            ->sum(fn($item) => $item->product->price * $item->quantity);
+        return empty($selectedIds)
+            ? 0
+            : $cartItems->whereIn('id', $selectedIds)
+                ->sum(fn($item) => $item->product->price * $item->quantity);
     }
 
     public function addProduct(Product $product): void
     {
         DB::transaction(function () use ($product) {
-            $cartItem = $this->user->cartItems()->firstOrNew([
-                'product_id' => $product->id
-            ]);
-
-            $cartItem->exists
-                ? $cartItem->increment('quantity')
-                : $cartItem->save(['quantity' => 1]);
+            $this->getAuthenticatedUser()->cartItems()->updateOrCreate(
+                ['product_id' => $product->id],
+                ['quantity' => DB::raw('quantity + 1')]
+            );
         });
+    }
+
+    protected function getAuthenticatedUser(): User
+    {
+        if (!$this->user) {
+            throw new \RuntimeException('No authenticated user');
+        }
+        return $this->user;
     }
 
     public function decrementProduct(Product $product): void
     {
         $cartItem = $this->getUserCartItem($product);
+
         $cartItem->quantity > 1
             ? $cartItem->decrement('quantity')
             : $cartItem->delete();
@@ -56,7 +71,10 @@ class CartService
 
     public function updateQuantity(CartItem $cartItem, int $quantity): void
     {
-        $this->validateCartItemOwnership($cartItem);
+        if ($cartItem->user_id !== $this->user->id) {
+            abort(403, 'Unauthorized action');
+        }
+
         $cartItem->update(['quantity' => $quantity]);
     }
 
@@ -65,12 +83,5 @@ class CartService
         return $this->user->cartItems()
             ->where('product_id', $product->id)
             ->firstOrFail();
-    }
-
-    protected function validateCartItemOwnership(CartItem $cartItem): void
-    {
-        if ($cartItem->user_id !== $this->user->id) {
-            abort(403, 'Доступ запрещён');
-        }
     }
 }

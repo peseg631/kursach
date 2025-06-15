@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\{Model, Relations\BelongsTo};
 
 class CartItem extends Model
 {
@@ -12,13 +12,18 @@ class CartItem extends Model
         'quantity' => 'integer'
     ];
 
-    public function product()
+    public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function getTotalPriceAttribute(): float
+    {
+        return $this->product->price * $this->quantity;
     }
 }

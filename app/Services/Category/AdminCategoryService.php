@@ -3,12 +3,12 @@
 namespace App\Services\Category;
 
 use App\Models\Category;
-use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class AdminCategoryService
 {
-    public function getPaginatedCategories(): LengthAwarePaginator
+    public function getPaginatedCategories(int $perPage = 15): LengthAwarePaginator
     {
-        return Category::paginate(15);
+        return Category::paginate($perPage);
     }
 }
