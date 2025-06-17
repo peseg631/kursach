@@ -9,10 +9,10 @@ class AdminMiddleware
 {
     public function handle(Request $request, Closure $next)
     {
-        if (auth()->check() && auth()->user()->role === 'admin') {
-            return $next($request);
+        if (auth()->user()->role !== 'admin') {
+            return redirect('/')->with('error', 'Доступ только для администраторов');
         }
 
-        abort(403, 'Доступ запрещён');
+        return $next($request);
     }
 }

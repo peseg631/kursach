@@ -4,8 +4,8 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use App\Http\Middleware\AdminMiddleware;
+use App\Http\Middleware\CustomerMiddleware; // Добавляем этот импорт
 use App\Http\Middleware\RedirectIfAuthenticated;
-use App\Http\Middleware\EnsureNotAdmin;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -16,8 +16,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'admin' => AdminMiddleware::class,
+            'customer' => CustomerMiddleware::class,
             'guest' => RedirectIfAuthenticated::class,
-            'ensure.not.admin' => EnsureNotAdmin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

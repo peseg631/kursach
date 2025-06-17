@@ -3,7 +3,6 @@
     <div class="w-full px-[150px]">
         <div class="flex justify-between h-16">
             <div class="flex">
-                <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     @php
                         $logoLink = route('products.index');
@@ -18,7 +17,6 @@
                 </div>
             </div>
 
-            <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6 gap-[30px]">
                 @auth
                     @if(auth()->user()->role !== 'admin')
@@ -27,7 +25,6 @@
                             $favoritesCount = auth()->user()->favorites()->count();
                         @endphp
 
-                            <!-- Иконка корзины -->
                         <a href="{{ route('cart.index') }}" class="relative text-gray-700 hover:text-gray-900" title="Корзина">
                             <svg width="26" height="26" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M21.822 7.43101C21.73 7.29808 21.6072 7.18943 21.464 7.11437C21.3209 7.03931 21.1616 7.00007 21 7.00001H7.333L6.179 4.23001C6.02813 3.86492 5.77202 3.55299 5.44328 3.33394C5.11453 3.1149 4.72803 2.99865 4.333 3.00001H2V5.00001H4.333L9.077 16.385C9.15299 16.5672 9.28118 16.7228 9.44542 16.8322C9.60967 16.9416 9.80263 17 10 17H18C18.417 17 18.79 16.741 18.937 16.352L21.937 8.35201C21.9937 8.20063 22.0129 8.03776 21.9928 7.87736C21.9728 7.71696 21.9142 7.5638 21.822 7.43101ZM17.307 15H10.667L8.167 9.00001H19.557L17.307 15Z" fill="white" stroke="white"/>
@@ -41,7 +38,6 @@
                     </span>
                             @endif
                         </a>
-                        <!-- Иконка избранного -->
                         <a href="{{ route('favorites.index') }}" class="relative text-gray-700 hover:text-gray-900" title="Избранное">
                             <svg width="21" height="20" viewBox="0 0 18 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M5.84996 13.825L8.99996 11.925L12.15 13.85L11.325 10.25L14.1 7.85001L10.45 7.52501L8.99996 4.12501L7.54996 7.50001L3.89996 7.82501L6.67496 10.25L5.84996 13.825ZM8.99996 14.275L4.84996 16.775C4.66663 16.8917 4.47496 16.9417 4.27496 16.925C4.07496 16.9083 3.89996 16.8417 3.74996 16.725C3.59996 16.6083 3.4833 16.4627 3.39996 16.288C3.31663 16.1133 3.29996 15.9173 3.34996 15.7L4.44996 10.975L0.774963 7.80001C0.608296 7.65001 0.504296 7.47901 0.462963 7.28701C0.421629 7.09501 0.433963 6.90768 0.499963 6.72501C0.565963 6.54235 0.665963 6.39235 0.799963 6.27501C0.933963 6.15768 1.1173 6.08268 1.34996 6.05001L6.19996 5.62501L8.07496 1.17501C8.1583 0.975012 8.28763 0.825012 8.46296 0.725012C8.6383 0.625012 8.8173 0.575012 8.99996 0.575012C9.18263 0.575012 9.36163 0.625012 9.53696 0.725012C9.7123 0.825012 9.84163 0.975012 9.92496 1.17501L11.8 5.62501L16.65 6.05001C16.8833 6.08335 17.0666 6.15835 17.2 6.27501C17.3333 6.39168 17.4333 6.54168 17.5 6.72501C17.5666 6.90835 17.5793 7.09601 17.538 7.28801C17.4966 7.48001 17.3923 7.65068 17.225 7.80001L13.55 10.975L14.65 15.7C14.7 15.9167 14.6833 16.1127 14.6 16.288C14.5166 16.4633 14.4 16.609 14.25 16.725C14.1 16.841 13.925 16.9077 13.725 16.925C13.525 16.9423 13.3333 16.8923 13.15 16.775L8.99996 14.275Z" fill="white"/>
@@ -83,7 +79,6 @@
                             </x-dropdown-link>
                         @endunless
 
-                        <!-- Authentication -->
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
 
@@ -97,7 +92,6 @@
                 </x-dropdown>
             </div>
 
-            <!-- Hamburger -->
             @if(auth()->check() && auth()->user()->role !== 'admin')
                 <div class="-me-2 flex items-center sm:hidden">
                     <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out">
@@ -111,16 +105,8 @@
         </div>
     </div>
 
-    <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
-        <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                {{ ('Dashboard') }}
-            </x-responsive-nav-link>
-        </div>
-
-        <!-- Responsive Settings Options -->
-        <div class="pt-4 pb-1 border-t border-gray-200">
+                <div class="pt-4 pb-1 border-t border-gray-200">
             <div class="px-4">
                 <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
                 <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
@@ -139,7 +125,6 @@
                     {{ ('Контакты') }}
                 </x-responsive-nav-link>
 
-                <!-- Authentication -->
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
 
